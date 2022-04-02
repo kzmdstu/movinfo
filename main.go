@@ -12,57 +12,61 @@ import (
 )
 
 // Timecode is timecode system that supports 30fps and (drop) 29.97fps.
+// See introduction of drop frame timecode system at http://andrewduncan.net/timecodes/
 type Timecode struct {
 	drop  bool
-	codes [4]int
+	frame int
 }
 
 // NewTimecode creates new Timecode.
 func NewTimecode(code string, drop bool) (*Timecode, error) {
 	t := &Timecode{}
+	t.drop = drop
 	if len(code) != 11 {
 		return nil, fmt.Errorf("invalid timecode: %v", code)
 	}
+	codes := [4]int{}
 	for i := 0; i < len(code); i += 3 {
 		n, err := strconv.Atoi(code[i : i+2])
 		if err != nil {
 			return nil, fmt.Errorf("invalid timecode: %v", code)
 		}
-		t.codes[i/3] = n
+		codes[i/3] = n
 	}
-	t.drop = drop
-	return t, nil
-}
-
-// Add adds frames to the Timecode.
-func (t *Timecode) Add(n int) {
-	h := t.codes[0]
-	m := t.codes[1]
-	s := t.codes[2]
-	f := t.codes[3]
-	// see http://andrewduncan.net/timecodes/
+	h := codes[0]
+	m := codes[1]
+	s := codes[2]
+	f := codes[3]
 	frame := 108000*h + 1800*m + 30*s + f
 	if t.drop {
 		totalMinutes := 60*h + m
 		frame -= 2 * (totalMinutes - totalMinutes/10)
 	}
-	frame += n
+	t.frame = frame
+	return t, nil
+}
+
+// Add adds frames to the Timecode.
+func (t *Timecode) Add(n int) {
+	t.frame += n
+}
+
+// String represents the Timecode as string.
+func (t *Timecode) String() string {
+	frame := t.frame
 	if t.drop {
 		D := frame / 17982  // number of "full" 10 minutes chunks in drop frame system
 		M := frame % 17982  // remainder frames
 		d := (M - 2) / 1798 // number of 1 minute chunks those drop frames; M-2 because the first chunk will not drop frames
 		frame += 18*D + 2*d // 10 minutes chunks drop 18 frames; 1 minute chunks drop 2 frames
 	}
-	t.codes[0] = frame / 30 / 60 / 60 % 24
-	t.codes[1] = frame / 30 / 60 % 60
-	t.codes[2] = frame / 30 % 60
-	t.codes[3] = frame % 30
-}
-
-// String represents the Timecode as string.
-func (t *Timecode) String() string {
+	h := frame / 30 / 60 / 60 % 24
+	m := frame / 30 / 60 % 60
+	s := frame / 30 % 60
+	f := frame % 30
+	codes := [4]int{h, m, s, f}
 	timecode := ""
-	for i, c := range t.codes {
+	for i, c := range codes {
 		if i == 1 || i == 2 {
 			timecode += ":"
 		}
