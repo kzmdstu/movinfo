@@ -89,15 +89,17 @@ func (t *Timecode) String() string {
 func main() {
 	log.SetFlags(0)
 	var (
-		start, end bool
+		start, end, duration bool
 	)
-	flag.BoolVar(&start, "start", false, "get start frame timecode from the mov. no-op when the input is an image")
-	flag.BoolVar(&end, "end", false, "get end frame timecode from the mov. no-op when the input is an image")
+	flag.BoolVar(&start, "start", false, "get start frame timecode from the mov.")
+	flag.BoolVar(&end, "end", false, "get end frame timecode from the mov.")
+	flag.BoolVar(&duration, "duration", false, "get duration in frame from the mov.")
 	flag.Parse()
 	args := flag.Args()
 	if len(args) != 1 {
 		log.Print(filepath.Base(os.Args[0]) + " [args...] movfile")
 		flag.PrintDefaults()
+		log.Println("Results will be printed start, end, duration order regardless of the flag order user given.")
 		return
 	}
 	file := args[0]
@@ -106,11 +108,8 @@ func main() {
 		// remove dot(.)
 		ext = ext[1:]
 	}
-	if start && end {
-		log.Fatalf("cannot set both -start and -end flags")
-	}
-	if !start && !end {
-		log.Fatalf("need to set either -start or -end flag for mov input")
+	if !start && !end && !duration {
+		log.Fatalf("need to set at least one of -start, -end, -duration flag")
 	}
 
 	c := exec.Command("ffprobe", "-show_streams", file)
@@ -122,15 +121,7 @@ func main() {
 	lines := strings.Split(string(out), "\n")
 	timecode := ""
 	fps := ""
-	if start {
-		// no need to find fps
-		fps = "n/a"
-	}
 	frames := 0
-	if start {
-		// no need to find frames
-		frames = -1
-	}
 	for _, l := range lines {
 		if fps != "" && timecode != "" && frames != 0 {
 			break
@@ -142,8 +133,11 @@ func main() {
 				log.Fatal("invalid timecode: %v", l)
 			}
 		}
-		if strings.HasPrefix(l, "Stream #0:0") && fps == "" {
+		if strings.HasPrefix(l, "Stream #0:") && fps == "" {
 			flds := strings.Fields(l)
+			if flds[2] != "Video:" {
+				continue
+			}
 			idx := -1
 			for i, f := range flds {
 				if f == "fps" || f == "fps," {
@@ -152,7 +146,7 @@ func main() {
 				}
 			}
 			if idx == -1 {
-				log.Fatalf("cannot get fps from mov: %v", file)
+				continue
 			}
 			fps = flds[idx-1]
 		}
@@ -174,20 +168,23 @@ func main() {
 	}
 	if start {
 		fmt.Println(timecode)
-		os.Exit(0)
 	}
-	// end
-	if fps != "30" && fps != "29.97" {
-		log.Fatal("unsupported fps: %v", fps)
+	if end {
+		if fps != "30" && fps != "29.97" {
+			log.Fatalf("unsupported fps: %v", fps)
+		}
+		drop := false
+		if fps == "29.97" {
+			drop = true
+		}
+		tc, err := NewTimecode(timecode, drop)
+		if err != nil {
+			log.Fatal(err)
+		}
+		tc.Add(frames - 1)
+		fmt.Println(tc)
 	}
-	drop := false
-	if fps == "29.97" {
-		drop = true
+	if duration {
+		fmt.Println(frames)
 	}
-	tc, err := NewTimecode(timecode, drop)
-	if err != nil {
-		log.Fatal(err)
-	}
-	tc.Add(frames - 1)
-	fmt.Println(tc)
 }
