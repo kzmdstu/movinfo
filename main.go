@@ -89,17 +89,19 @@ func (t *Timecode) String() string {
 func main() {
 	log.SetFlags(0)
 	var (
-		start, end, duration bool
+		start, end, duration, resolution bool
 	)
 	flag.BoolVar(&start, "start", false, "get start frame timecode from the mov.")
 	flag.BoolVar(&end, "end", false, "get end frame timecode from the mov.")
 	flag.BoolVar(&duration, "duration", false, "get duration in frame from the mov.")
+	flag.BoolVar(&resolution, "resolution", false, "get resolution of the mov.")
 	flag.Parse()
 	args := flag.Args()
 	if len(args) != 1 {
 		log.Print(filepath.Base(os.Args[0]) + " [args...] movfile")
 		flag.PrintDefaults()
-		log.Println("Results will be printed start, end, duration order regardless of the flag order user given.")
+		log.Println("Results will be printed following order regardless of the flag order given by user: ")
+		log.Println("\tstart, end, duration, resolution")
 		return
 	}
 	file := args[0]
@@ -108,8 +110,8 @@ func main() {
 		// remove dot(.)
 		ext = ext[1:]
 	}
-	if !start && !end && !duration {
-		log.Fatalf("need to set at least one of -start, -end, -duration flag")
+	if !start && !end && !duration && !resolution {
+		log.Fatalf("need to set at least one of -start, -end, -duration, -resolution flag")
 	}
 
 	c := exec.Command("ffprobe", "-show_streams", file)
@@ -122,6 +124,8 @@ func main() {
 	timecode := ""
 	fps := ""
 	frames := 0
+	width := ""
+	height := ""
 	for _, l := range lines {
 		if fps != "" && timecode != "" && frames != 0 {
 			break
@@ -156,20 +160,29 @@ func main() {
 				log.Fatal("invalid frames: %v", l)
 			}
 		}
-	}
-	if timecode == "" {
-		log.Fatal("missing timecode information")
-	}
-	if fps == "" {
-		log.Fatal("missing fps information")
-	}
-	if frames == 0 {
-		log.Fatal("missing frames information")
+		if strings.HasPrefix(l, "width=") && width == "" {
+			width = strings.TrimPrefix(l, "width=")
+		}
+		if strings.HasPrefix(l, "height=") && height == "" {
+			height = strings.TrimPrefix(l, "height=")
+		}
 	}
 	if start {
+		if timecode == "" {
+			log.Fatal("missing TAG:timecode information")
+		}
 		fmt.Println(timecode)
 	}
 	if end {
+		if timecode == "" {
+			log.Fatal("missing TAG:timecode information")
+		}
+		if fps == "" {
+			log.Fatal("missing fps information")
+		}
+		if frames == 0 {
+			log.Fatal("missing nb_frames information")
+		}
 		if fps != "30" && fps != "29.97" {
 			log.Fatalf("unsupported fps: %v", fps)
 		}
@@ -185,6 +198,18 @@ func main() {
 		fmt.Println(tc)
 	}
 	if duration {
+		if frames == 0 {
+			log.Fatal("missing nb_frames information")
+		}
 		fmt.Println(frames)
+	}
+	if resolution {
+		if width == "" {
+			log.Fatal("missing width information")
+		}
+		if height == "" {
+			log.Fatal("missing height information")
+		}
+		fmt.Println(width + "*" + height)
 	}
 }
