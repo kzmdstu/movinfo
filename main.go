@@ -183,11 +183,11 @@ func main() {
 		if frames == 0 {
 			log.Fatal("missing nb_frames information")
 		}
-		if fps != "30" && fps != "29.97" {
+		if fps != "30" && fps != "29.97" && fps != "23.98" && fps != "23.976" {
 			log.Fatalf("unsupported fps: %v", fps)
 		}
 		drop := false
-		if fps == "29.97" {
+		if fps == "29.97" || fps == "29.98" || fps == "29.976" {
 			drop = true
 		}
 		tc, err := NewTimecode(timecode, drop)
