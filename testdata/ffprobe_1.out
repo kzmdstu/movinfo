@@ -1,0 +1,183 @@
+ffprobe version 4.4.1 Copyright (c) 2007-2021 the FFmpeg developers
+  built with Apple clang version 13.0.0 (clang-1300.0.29.3)
+  configuration: --prefix=/opt/homebrew/Cellar/ffmpeg/4.4.1_3 --enable-shared --enable-pthreads --enable-version3 --cc=clang --host-cflags= --host-ldflags= --enable-ffplay --enable-gnutls --enable-gpl --enable-libaom --enable-libbluray --enable-libdav1d --enable-libmp3lame --enable-libopus --enable-librav1e --enable-librist --enable-librubberband --enable-libsnappy --enable-libsrt --enable-libtesseract --enable-libtheora --enable-libvidstab --enable-libvmaf --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxml2 --enable-libxvid --enable-lzma --enable-libfontconfig --enable-libfreetype --enable-frei0r --enable-libass --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenjpeg --enable-libspeex --enable-libsoxr --enable-libzmq --enable-libzimg --disable-libjack --disable-indev=jack --enable-avresample --enable-videotoolbox
+  libavutil      56. 70.100 / 56. 70.100
+  libavcodec     58.134.100 / 58.134.100
+  libavformat    58. 76.100 / 58. 76.100
+  libavdevice    58. 13.100 / 58. 13.100
+  libavfilter     7.110.100 /  7.110.100
+  libavresample   4.  0.  0 /  4.  0.  0
+  libswscale      5.  9.100 /  5.  9.100
+  libswresample   3.  9.100 /  3.  9.100
+  libpostproc    55.  9.100 / 55.  9.100
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'example_1.mov':
+  Metadata:
+    major_brand     : qt  
+    minor_version   : 0
+    compatible_brands: qt  
+    creation_time   : 2022-07-01T08:24:37.000000Z
+    com.apple.quicktime.keywords: VFX_SHOT_v1
+    com.apple.quicktime.description: This video is about EP 1_s 01-28_0630_s15_0701
+    com.apple.quicktime.author: admin
+    com.apple.quicktime.displayname: EP 1_s 01-28_0630_s15_0701
+    com.apple.quicktime.title: EP 1_s 01-28_0630_s15_0701
+  Duration: 00:00:04.25, start: 0.000000, bitrate: 178198 kb/s
+  Stream #0:0(und): Audio: pcm_s24le (lpcm / 0x6D63706C), 48000 Hz, 2 channels, s32 (24 bit), 2304 kb/s (default)
+    Metadata:
+      creation_time   : 2022-07-01T08:24:37.000000Z
+      handler_name    : Core Media Audio
+      vendor_id       : [0][0][0][0]
+  Stream #0:1(und): Video: prores (HQ) (apch / 0x68637061), yuv422p10le(tv, bt709/bt709/unknown, progressive), 1920x1080, 175086 kb/s, SAR 1:1 DAR 16:9, 23.98 fps, 23.98 tbr, 24k tbn, 24k tbc (default)
+    Metadata:
+      creation_time   : 2022-07-01T08:24:37.000000Z
+      handler_name    : Core Media Video
+      vendor_id       : appl
+      encoder         : Apple ProRes 422 HQ
+      timecode        : 00:00:00:00
+  Stream #0:2(und): Data: none (tmcd / 0x64636D74), 0 kb/s (default)
+    Metadata:
+      creation_time   : 2022-07-01T08:24:37.000000Z
+      handler_name    : Core Media Time Code
+      timecode        : 00:00:00:00
+Unsupported codec with id 0 for input stream 2
+[STREAM]
+index=0
+codec_name=pcm_s24le
+codec_long_name=PCM signed 24-bit little-endian
+profile=unknown
+codec_type=audio
+codec_tag_string=lpcm
+codec_tag=0x6d63706c
+sample_fmt=s32
+sample_rate=48000
+channels=2
+channel_layout=unknown
+bits_per_sample=24
+id=N/A
+r_frame_rate=0/0
+avg_frame_rate=0/0
+time_base=1/48000
+start_pts=0
+start_time=0.000000
+duration_ts=204204
+duration=4.254250
+bit_rate=2304000
+max_bit_rate=N/A
+bits_per_raw_sample=24
+nb_frames=240240
+nb_read_frames=N/A
+nb_read_packets=N/A
+DISPOSITION:default=1
+DISPOSITION:dub=0
+DISPOSITION:original=0
+DISPOSITION:comment=0
+DISPOSITION:lyrics=0
+DISPOSITION:karaoke=0
+DISPOSITION:forced=0
+DISPOSITION:hearing_impaired=0
+DISPOSITION:visual_impaired=0
+DISPOSITION:clean_effects=0
+DISPOSITION:attached_pic=0
+DISPOSITION:timed_thumbnails=0
+TAG:creation_time=2022-07-01T08:24:37.000000Z
+TAG:language=und
+TAG:handler_name=Core Media Audio
+TAG:vendor_id=[0][0][0][0]
+[/STREAM]
+[STREAM]
+index=1
+codec_name=prores
+codec_long_name=Apple ProRes (iCodec Pro)
+profile=HQ
+codec_type=video
+codec_tag_string=apch
+codec_tag=0x68637061
+width=1920
+height=1080
+coded_width=1920
+coded_height=1080
+closed_captions=0
+has_b_frames=0
+sample_aspect_ratio=1:1
+display_aspect_ratio=16:9
+pix_fmt=yuv422p10le
+level=-99
+color_range=tv
+color_space=bt709
+color_transfer=unknown
+color_primaries=bt709
+chroma_location=unspecified
+field_order=progressive
+refs=1
+id=N/A
+r_frame_rate=24000/1001
+avg_frame_rate=24000/1001
+time_base=1/24000
+start_pts=0
+start_time=0.000000
+duration_ts=102102
+duration=4.254250
+bit_rate=175086127
+max_bit_rate=N/A
+bits_per_raw_sample=10
+nb_frames=102
+nb_read_frames=N/A
+nb_read_packets=N/A
+DISPOSITION:default=1
+DISPOSITION:dub=0
+DISPOSITION:original=0
+DISPOSITION:comment=0
+DISPOSITION:lyrics=0
+DISPOSITION:karaoke=0
+DISPOSITION:forced=0
+DISPOSITION:hearing_impaired=0
+DISPOSITION:visual_impaired=0
+DISPOSITION:clean_effects=0
+DISPOSITION:attached_pic=0
+DISPOSITION:timed_thumbnails=0
+TAG:creation_time=2022-07-01T08:24:37.000000Z
+TAG:language=und
+TAG:handler_name=Core Media Video
+TAG:vendor_id=appl
+TAG:encoder=Apple ProRes 422 HQ
+TAG:timecode=00:00:00:00
+[/STREAM]
+[STREAM]
+index=2
+codec_name=unknown
+codec_long_name=unknown
+profile=unknown
+codec_type=data
+codec_tag_string=tmcd
+codec_tag=0x64636d74
+id=N/A
+r_frame_rate=0/0
+avg_frame_rate=24000/1001
+time_base=1/24000
+start_pts=0
+start_time=0.000000
+duration_ts=102102
+duration=4.254250
+bit_rate=7
+max_bit_rate=N/A
+bits_per_raw_sample=N/A
+nb_frames=1
+nb_read_frames=N/A
+nb_read_packets=N/A
+DISPOSITION:default=1
+DISPOSITION:dub=0
+DISPOSITION:original=0
+DISPOSITION:comment=0
+DISPOSITION:lyrics=0
+DISPOSITION:karaoke=0
+DISPOSITION:forced=0
+DISPOSITION:hearing_impaired=0
+DISPOSITION:visual_impaired=0
+DISPOSITION:clean_effects=0
+DISPOSITION:attached_pic=0
+DISPOSITION:timed_thumbnails=0
+TAG:creation_time=2022-07-01T08:24:37.000000Z
+TAG:language=und
+TAG:handler_name=Core Media Time Code
+TAG:timecode=00:00:00:00
+[/STREAM]

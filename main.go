@@ -86,15 +86,27 @@ func (t *Timecode) String() string {
 	return timecode
 }
 
+type config struct {
+	start bool
+	end bool
+	duration bool
+	resolution bool
+}
+
+type result struct {
+	start string
+	end string
+	duration string
+	resolution string
+}
+
 func main() {
 	log.SetFlags(0)
-	var (
-		start, end, duration, resolution bool
-	)
-	flag.BoolVar(&start, "start", false, "get start frame timecode from the mov.")
-	flag.BoolVar(&end, "end", false, "get end frame timecode from the mov.")
-	flag.BoolVar(&duration, "duration", false, "get duration in frame from the mov.")
-	flag.BoolVar(&resolution, "resolution", false, "get resolution of the mov.")
+	cfg := config{}
+	flag.BoolVar(&cfg.start, "start", false, "get start frame timecode from the mov.")
+	flag.BoolVar(&cfg.end, "end", false, "get end frame timecode from the mov.")
+	flag.BoolVar(&cfg.duration, "duration", false, "get duration in frame from the mov.")
+	flag.BoolVar(&cfg.resolution, "resolution", false, "get resolution of the mov.")
 	flag.Parse()
 	args := flag.Args()
 	if len(args) != 1 {
@@ -110,37 +122,60 @@ func main() {
 		// remove dot(.)
 		ext = ext[1:]
 	}
-	if !start && !end && !duration && !resolution {
+	if !cfg.start && !cfg.end && !cfg.duration && !cfg.resolution {
 		log.Fatalf("need to set at least one of -start, -end, -duration, -resolution flag")
 	}
 
 	c := exec.Command("ffprobe", "-show_streams", file)
-	out, err := c.CombinedOutput()
+	b, err := c.CombinedOutput()
 	if err != nil {
-		log.Fatalf("failed to execute: %v", string(out))
+		log.Fatalf("failed to execute: %s", b)
 	}
+	out := string(b)
+	res, err := parse(out, cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if res.start != "" {
+		fmt.Println(res.start)
+	}
+	if res.end != "" {
+		fmt.Println(res.end)
+	}
+	if res.duration != "" {
+		fmt.Println(res.duration)
+	}
+	if res.resolution != "" {
+		fmt.Println(res.resolution)
+	}
+}
 
-	lines := strings.Split(string(out), "\n")
-	timecode := ""
+// parse parses ffprobe output data for a mov.
+func parse(data string, cfg config) (res result, err error) {
+	idx := strings.Index(data, "[STREAM]")
+	if idx == -1 {
+		return res, fmt.Errorf("cannot find [STREAM] lines")
+	}
+	overview := data[:idx]
+	streamData := data[idx:]
 	fps := ""
-	frames := 0
-	width := ""
-	height := ""
-	for _, l := range lines {
-		if fps != "" && timecode != "" && frames != 0 {
-			break
-		}
+	videoIdx := -1
+	for _, l := range strings.Split(overview, "\n") {
 		l = strings.TrimSpace(l)
-		if strings.HasPrefix(l, "TAG:timecode=") {
-			timecode = strings.TrimPrefix(l, "TAG:timecode=")
-			if len(timecode) != 11 {
-				log.Fatal("invalid timecode: %v", l)
-			}
-		}
 		if strings.HasPrefix(l, "Stream #0:") && fps == "" {
 			flds := strings.Fields(l)
 			if flds[2] != "Video:" {
 				continue
+			}
+			rest := strings.TrimPrefix(l, "Stream #0:")
+			if len(rest) == 0 {
+				return res, fmt.Errorf("unexpected stream line")
+			}
+			trimDigits := strings.TrimLeft(rest, "0123456789")
+			n := rest[:len(rest)-len(trimDigits)]
+			videoIdx, err = strconv.Atoi(n)
+			if err != nil {
+				return res, fmt.Errorf("unexpected stream line")
 			}
 			idx := -1
 			for i, f := range flds {
@@ -154,10 +189,27 @@ func main() {
 			}
 			fps = flds[idx-1]
 		}
+	}
+	if videoIdx == -1 {
+		return res, fmt.Errorf("not found video stream")
+	}
+	streams := strings.SplitAfter(streamData, "[/STREAM]")
+	if videoIdx >= len(streams) {
+		return res, fmt.Errorf("unmatched video stream")
+	}
+	frames := 0
+	width := ""
+	height := ""
+	timecode := ""
+	videoStream := streams[videoIdx]
+	for _, l := range strings.Split(videoStream, "\n") {
+		if fps != "" && timecode != "" && frames != 0 {
+			break
+		}
 		if strings.HasPrefix(l, "nb_frames=") && frames == 0 {
 			frames, err = strconv.Atoi(strings.TrimPrefix(l, "nb_frames="))
 			if err != nil {
-				log.Fatal("invalid frames: %v", l)
+				return res, fmt.Errorf("invalid frames: %v", l)
 			}
 		}
 		if strings.HasPrefix(l, "width=") && width == "" {
@@ -166,25 +218,31 @@ func main() {
 		if strings.HasPrefix(l, "height=") && height == "" {
 			height = strings.TrimPrefix(l, "height=")
 		}
-	}
-	if start {
-		if timecode == "" {
-			log.Fatal("missing TAG:timecode information")
+		if strings.HasPrefix(l, "TAG:timecode=") {
+			timecode = strings.TrimPrefix(l, "TAG:timecode=")
+			if len(timecode) != 11 {
+				return res, fmt.Errorf("invalid timecode: %v", l)
+			}
 		}
-		fmt.Println(timecode)
 	}
-	if end {
+	if cfg.start {
 		if timecode == "" {
-			log.Fatal("missing TAG:timecode information")
+			return res, fmt.Errorf("missing TAG:timecode information")
+		}
+		res.start = timecode
+	}
+	if cfg.end {
+		if timecode == "" {
+			return res, fmt.Errorf("missing TAG:timecode information")
 		}
 		if fps == "" {
-			log.Fatal("missing fps information")
+			return res, fmt.Errorf("missing fps information")
 		}
 		if frames == 0 {
-			log.Fatal("missing nb_frames information")
+			return res, fmt.Errorf("missing nb_frames information")
 		}
 		if fps != "30" && fps != "29.97" && fps != "23.98" && fps != "23.976" {
-			log.Fatalf("unsupported fps: %v", fps)
+			return res, fmt.Errorf("unsupported fps: %v", fps)
 		}
 		drop := false
 		if fps == "29.97" || fps == "29.98" || fps == "29.976" {
@@ -192,24 +250,25 @@ func main() {
 		}
 		tc, err := NewTimecode(timecode, drop)
 		if err != nil {
-			log.Fatal(err)
+			return res, err
 		}
 		tc.Add(frames - 1)
-		fmt.Println(tc)
+		res.end = tc.String()
 	}
-	if duration {
+	if cfg.duration {
 		if frames == 0 {
-			log.Fatal("missing nb_frames information")
+			return res, fmt.Errorf("missing nb_frames information")
 		}
-		fmt.Println(frames)
+		res.duration = strconv.Itoa(frames)
 	}
-	if resolution {
+	if cfg.resolution {
 		if width == "" {
-			log.Fatal("missing width information")
+			return res, fmt.Errorf("missing width information")
 		}
 		if height == "" {
-			log.Fatal("missing height information")
+			return res, fmt.Errorf("missing height information")
 		}
-		fmt.Println(width + "*" + height)
+		res.resolution = width + "*" + height
 	}
+	return res, nil
 }
