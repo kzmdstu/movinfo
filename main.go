@@ -87,16 +87,16 @@ func (t *Timecode) String() string {
 }
 
 type config struct {
-	start bool
-	end bool
-	duration bool
+	start      bool
+	end        bool
+	duration   bool
 	resolution bool
 }
 
 type result struct {
-	start string
-	end string
-	duration string
+	start      string
+	end        string
+	duration   string
 	resolution string
 }
 
@@ -245,7 +245,8 @@ func parse(data string, cfg config) (res result, err error) {
 			return res, fmt.Errorf("unsupported fps: %v", fps)
 		}
 		drop := false
-		if fps == "29.97" || fps == "29.98" || fps == "29.976" {
+		if fps == "29.97" {
+			// contrary to our intuition 23.98 (or 23.976) isn't a drop frame system.
 			drop = true
 		}
 		tc, err := NewTimecode(timecode, drop)
