@@ -90,14 +90,20 @@ type config struct {
 	start      bool
 	end        bool
 	duration   bool
+	fps        bool
 	resolution bool
+	codec      bool
+	colorspace bool
 }
 
 type result struct {
 	start      string
 	end        string
 	duration   string
+	fps        string
 	resolution string
+	codec      string
+	colorspace string
 }
 
 func main() {
@@ -106,7 +112,10 @@ func main() {
 	flag.BoolVar(&cfg.start, "start", false, "get start frame timecode from the mov.")
 	flag.BoolVar(&cfg.end, "end", false, "get end frame timecode from the mov.")
 	flag.BoolVar(&cfg.duration, "duration", false, "get duration in frame from the mov.")
+	flag.BoolVar(&cfg.fps, "fps", false, "get fps from the mov.")
 	flag.BoolVar(&cfg.resolution, "resolution", false, "get resolution of the mov.")
+	flag.BoolVar(&cfg.codec, "codec", false, "get codec of the mov.")
+	flag.BoolVar(&cfg.colorspace, "colorspace", false, "get colorspace of the mov.")
 	flag.Parse()
 	args := flag.Args()
 	if len(args) != 1 {
@@ -122,8 +131,8 @@ func main() {
 		// remove dot(.)
 		ext = ext[1:]
 	}
-	if !cfg.start && !cfg.end && !cfg.duration && !cfg.resolution {
-		log.Fatalf("need to set at least one of -start, -end, -duration, -resolution flag")
+	if !cfg.start && !cfg.end && !cfg.duration && !cfg.fps && !cfg.resolution && !cfg.codec && !cfg.colorspace {
+		log.Fatalf("need to set at least one of -start, -end, -duration, -fps, -resolution, -codec, -colorspace flag")
 	}
 
 	c := exec.Command("ffprobe", "-show_streams", file)
@@ -145,8 +154,17 @@ func main() {
 	if res.duration != "" {
 		fmt.Println(res.duration)
 	}
+	if res.fps != "" {
+		fmt.Println(res.fps)
+	}
 	if res.resolution != "" {
 		fmt.Println(res.resolution)
+	}
+	if res.codec != "" {
+		fmt.Println(res.codec)
+	}
+	if res.colorspace != "" {
+		fmt.Println(res.colorspace)
 	}
 }
 
@@ -201,6 +219,10 @@ func parse(data string, cfg config) (res result, err error) {
 	width := ""
 	height := ""
 	timecode := ""
+	codec := ""
+	codec_profile := ""
+	pix_fmt := ""
+	colorspace := ""
 	videoStream := streams[videoIdx]
 	for _, l := range strings.Split(videoStream, "\n") {
 		if fps != "" && timecode != "" && frames != 0 {
@@ -217,6 +239,18 @@ func parse(data string, cfg config) (res result, err error) {
 		}
 		if strings.HasPrefix(l, "height=") && height == "" {
 			height = strings.TrimPrefix(l, "height=")
+		}
+		if strings.HasPrefix(l, "codec_name=") && codec == "" {
+			codec = strings.TrimPrefix(l, "codec_name=")
+		}
+		if strings.HasPrefix(l, "profile=") && codec_profile == "" {
+			codec_profile = strings.TrimPrefix(l, "profile=")
+		}
+		if strings.HasPrefix(l, "pix_fmt=") && pix_fmt == "" {
+			pix_fmt = strings.TrimPrefix(l, "pix_fmt=")
+		}
+		if strings.HasPrefix(l, "color_space=") && colorspace == "" {
+			colorspace = strings.TrimPrefix(l, "color_space=")
 		}
 		if strings.HasPrefix(l, "TAG:timecode=") {
 			timecode = strings.TrimPrefix(l, "TAG:timecode=")
@@ -262,6 +296,9 @@ func parse(data string, cfg config) (res result, err error) {
 		}
 		res.duration = strconv.Itoa(frames)
 	}
+	if cfg.fps {
+		res.fps = fps
+	}
 	if cfg.resolution {
 		if width == "" {
 			return res, fmt.Errorf("missing width information")
@@ -270,6 +307,12 @@ func parse(data string, cfg config) (res result, err error) {
 			return res, fmt.Errorf("missing height information")
 		}
 		res.resolution = width + "*" + height
+	}
+	if cfg.codec {
+		res.codec = strings.Title(strings.ToLower(codec)) + " " + codec_profile + " / " + pix_fmt
+	}
+	if cfg.colorspace {
+		res.colorspace = colorspace
 	}
 	return res, nil
 }
