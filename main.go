@@ -11,17 +11,25 @@ import (
 	"strings"
 )
 
-// Timecode is timecode system that supports 30fps and (drop) 29.97fps.
+// Timecode is timecode system that supports 24 and 30 base fps.
 // See introduction of drop frame timecode system at http://andrewduncan.net/timecodes/
 type Timecode struct {
+	// base is base frame rate for timecode
+	// ex) base frame rate of 29.976 fps is 30.
+	base  int
 	drop  bool
 	frame int
 }
 
 // NewTimecode creates new Timecode.
-func NewTimecode(code string, drop bool) (*Timecode, error) {
-	t := &Timecode{}
-	t.drop = drop
+func NewTimecode(code string, base int, drop bool) (*Timecode, error) {
+	if base != 24 && base != 30 {
+		return nil, fmt.Errorf("unknown base for timecode: %v:", base)
+	}
+	if base == 24 && drop {
+		// 23.98, 23.978 isn't a drop timecode system.
+		drop = false
+	}
 	if len(code) != 11 {
 		return nil, fmt.Errorf("invalid timecode: %v", code)
 	}
@@ -37,12 +45,17 @@ func NewTimecode(code string, drop bool) (*Timecode, error) {
 	m := codes[1]
 	s := codes[2]
 	f := codes[3]
-	frame := 108000*h + 1800*m + 30*s + f
-	if t.drop {
+	frame := 3600*h*base + 60*m*base + s*base + f
+	if drop {
+		// assume it is base 30
 		totalMinutes := 60*h + m
 		frame -= 2 * (totalMinutes - totalMinutes/10)
 	}
-	t.frame = frame
+	t := &Timecode{
+		base:  base,
+		drop:  drop,
+		frame: frame,
+	}
 	return t, nil
 }
 
@@ -53,17 +66,19 @@ func (t *Timecode) Add(n int) {
 
 // String represents the Timecode as string.
 func (t *Timecode) String() string {
+	base := t.base
 	frame := t.frame
 	if t.drop {
+		// assume it is base 30
 		D := frame / 17982  // number of "full" 10 minutes chunks in drop frame system
 		M := frame % 17982  // remainder frames
 		d := (M - 2) / 1798 // number of 1 minute chunks those drop frames; M-2 because the first chunk will not drop frames
 		frame += 18*D + 2*d // 10 minutes chunks drop 18 frames; 1 minute chunks drop 2 frames
 	}
-	h := frame / 30 / 60 / 60 % 24
-	m := frame / 30 / 60 % 60
-	s := frame / 30 % 60
-	f := frame % 30
+	h := frame / base / 60 / 60 % 24
+	m := frame / base / 60 % 60
+	s := frame / base % 60
+	f := frame % base
 	codes := [4]int{h, m, s, f}
 	timecode := ""
 	for i, c := range codes {
@@ -275,15 +290,19 @@ func parse(data string, cfg config) (res result, err error) {
 		if frames == 0 {
 			return res, fmt.Errorf("missing nb_frames information")
 		}
-		if fps != "30" && fps != "29.97" && fps != "23.98" && fps != "23.976" {
+		if fps != "30" && fps != "29.97" && fps != "24" && fps != "23.98" && fps != "23.976" {
 			return res, fmt.Errorf("unsupported fps: %v", fps)
+		}
+		base := 24
+		if fps == "30" || fps == "29.97" {
+			base = 30
 		}
 		drop := false
 		if fps == "29.97" {
 			// contrary to our intuition 23.98 (or 23.976) isn't a drop frame system.
 			drop = true
 		}
-		tc, err := NewTimecode(timecode, drop)
+		tc, err := NewTimecode(timecode, base, drop)
 		if err != nil {
 			return res, err
 		}

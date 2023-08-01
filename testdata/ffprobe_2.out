@@ -1,0 +1,178 @@
+ffprobe version 4.2.7 Copyright (c) 2007-2022 the FFmpeg developers
+  built with gcc 8 (GCC)
+  configuration: --prefix=/usr --bindir=/usr/bin --datadir=/usr/share/ffmpeg --docdir=/usr/share/doc/ffmpeg --incdir=/usr/include/ffmpeg --libdir=/usr/lib64 --mandir=/usr/share/man --arch=x86_64 --optflags='-O2 -g -pipe -Wall -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wp,-D_GLIBCXX_ASSERTIONS -fexceptions -fstack-protector-strong -grecord-gcc-switches -specs=/usr/lib/rpm/redhat/redhat-hardened-cc1 -specs=/usr/lib/rpm/redhat/redhat-annobin-cc1 -m64 -mtune=generic -fasynchronous-unwind-tables -fstack-clash-protection -fcf-protection' --extra-ldflags='-Wl,-z,relro -Wl,-z,now -specs=/usr/lib/rpm/redhat/redhat-hardened-ld ' --extra-cflags=' ' --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libvo-amrwbenc --enable-version3 --enable-bzlib --disable-crystalhd --enable-fontconfig --enable-frei0r --enable-gcrypt --enable-gnutls --enable-ladspa --enable-libaom --enable-libdav1d --enable-libass --enable-libbluray --enable-libcdio --enable-libdrm --enable-libjack --enable-libfreetype --enable-libfribidi --enable-libgsm --enable-libmp3lame --enable-nvenc --enable-openal --enable-opencl --enable-opengl --enable-libopenjpeg --enable-libopus --enable-libpulse --enable-librsvg --enable-libsrt --enable-libsoxr --enable-libspeex --enable-libssh --enable-libtheora --enable-libvorbis --enable-libv4l2 --enable-libvidstab --enable-libvmaf --enable-version3 --enable-vapoursynth --enable-libvpx --enable-libx264 --enable-libx265 --enable-libxvid --enable-libzimg --enable-libzvbi --enable-avfilter --enable-avresample --enable-libmodplug --enable-postproc --enable-pthreads --disable-static --enable-shared --enable-gpl --disable-debug --disable-stripping --shlibdir=/usr/lib64 --enable-libmfx --enable-runtime-cpudetect
+  libavutil      56. 31.100 / 56. 31.100
+  libavcodec     58. 54.100 / 58. 54.100
+  libavformat    58. 29.100 / 58. 29.100
+  libavdevice    58.  8.100 / 58.  8.100
+  libavfilter     7. 57.100 /  7. 57.100
+  libavresample   4.  0.  0 /  4.  0.  0
+  libswscale      5.  5.100 /  5.  5.100
+  libswresample   3.  5.100 /  3.  5.100
+  libpostproc    55.  5.100 / 55.  5.100
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '002_B086C011_230516_R0E7.mov':
+  Metadata:
+    major_brand     : qt  
+    minor_version   : 512
+    compatible_brands: qt  
+    creation_time   : 2023-07-17T09:06:24.000000Z
+    encoder         : Blackmagic Design DaVinci Resolve Studio
+  Duration: 00:00:03.50, start: 0.000000, bitrate: 177560 kb/s
+    Stream #0:0: Video: prores (HQ) (apch / 0x68637061), yuv422p10le(tv, bt709, progressive), 1920x1080, 176018 kb/s, SAR 1:1 DAR 16:9, 23.98 fps, 23.98 tbr, 24k tbn, 24k tbc (default)
+    Metadata:
+      creation_time   : 2023-07-17T09:06:24.000000Z
+      handler_name    : VideoHandler
+      encoder         : Apple ProRes 422 HQ
+      timecode        : 20:51:01:20
+    Stream #0:1: Audio: pcm_s16le (lpcm / 0x6D63706C), 48000 Hz, stereo, s16, 1536 kb/s (default)
+    Metadata:
+      creation_time   : 2023-07-17T09:06:24.000000Z
+      handler_name    : SoundHandler
+    Stream #0:2(eng): Data: none (tmcd / 0x64636D74), 0 kb/s
+    Metadata:
+      creation_time   : 2023-07-17T09:06:24.000000Z
+      handler_name    : TimeCodeHandler
+      reel_name       : B086C011
+      timecode        : 20:51:01:20
+Unsupported codec with id 0 for input stream 2
+[STREAM]
+index=0
+codec_name=prores
+codec_long_name=Apple ProRes (iCodec Pro)
+profile=HQ
+codec_type=video
+codec_time_base=1001/24000
+codec_tag_string=apch
+codec_tag=0x68637061
+width=1920
+height=1080
+coded_width=1920
+coded_height=1080
+has_b_frames=0
+sample_aspect_ratio=1:1
+display_aspect_ratio=16:9
+pix_fmt=yuv422p10le
+level=-99
+color_range=tv
+color_space=bt709
+color_transfer=bt709
+color_primaries=bt709
+chroma_location=unspecified
+field_order=progressive
+timecode=N/A
+refs=1
+id=N/A
+r_frame_rate=24000/1001
+avg_frame_rate=24000/1001
+time_base=1/24000
+start_pts=0
+start_time=0.000000
+duration_ts=84084
+duration=3.503500
+bit_rate=176018249
+max_bit_rate=N/A
+bits_per_raw_sample=10
+nb_frames=84
+nb_read_frames=N/A
+nb_read_packets=N/A
+DISPOSITION:default=1
+DISPOSITION:dub=0
+DISPOSITION:original=0
+DISPOSITION:comment=0
+DISPOSITION:lyrics=0
+DISPOSITION:karaoke=0
+DISPOSITION:forced=0
+DISPOSITION:hearing_impaired=0
+DISPOSITION:visual_impaired=0
+DISPOSITION:clean_effects=0
+DISPOSITION:attached_pic=0
+DISPOSITION:timed_thumbnails=0
+TAG:creation_time=2023-07-17T09:06:24.000000Z
+TAG:handler_name=VideoHandler
+TAG:encoder=Apple ProRes 422 HQ
+TAG:timecode=20:51:01:20
+[/STREAM]
+[STREAM]
+index=1
+codec_name=pcm_s16le
+codec_long_name=PCM signed 16-bit little-endian
+profile=unknown
+codec_type=audio
+codec_time_base=1/48000
+codec_tag_string=lpcm
+codec_tag=0x6d63706c
+sample_fmt=s16
+sample_rate=48000
+channels=2
+channel_layout=stereo
+bits_per_sample=16
+id=N/A
+r_frame_rate=0/0
+avg_frame_rate=0/0
+time_base=1/48000
+start_pts=0
+start_time=0.000000
+duration_ts=168168
+duration=3.503500
+bit_rate=1536000
+max_bit_rate=N/A
+bits_per_raw_sample=N/A
+nb_frames=168168
+nb_read_frames=N/A
+nb_read_packets=N/A
+DISPOSITION:default=1
+DISPOSITION:dub=0
+DISPOSITION:original=0
+DISPOSITION:comment=0
+DISPOSITION:lyrics=0
+DISPOSITION:karaoke=0
+DISPOSITION:forced=0
+DISPOSITION:hearing_impaired=0
+DISPOSITION:visual_impaired=0
+DISPOSITION:clean_effects=0
+DISPOSITION:attached_pic=0
+DISPOSITION:timed_thumbnails=0
+TAG:creation_time=2023-07-17T09:06:24.000000Z
+TAG:handler_name=SoundHandler
+[/STREAM]
+[STREAM]
+index=2
+codec_name=unknown
+codec_long_name=unknown
+profile=unknown
+codec_type=data
+codec_tag_string=tmcd
+codec_tag=0x64636d74
+id=N/A
+r_frame_rate=0/0
+avg_frame_rate=24/1
+time_base=1/24000
+start_pts=0
+start_time=0.000000
+duration_ts=84084
+duration=3.503500
+bit_rate=9
+max_bit_rate=N/A
+bits_per_raw_sample=N/A
+nb_frames=1
+nb_read_frames=N/A
+nb_read_packets=N/A
+DISPOSITION:default=0
+DISPOSITION:dub=0
+DISPOSITION:original=0
+DISPOSITION:comment=0
+DISPOSITION:lyrics=0
+DISPOSITION:karaoke=0
+DISPOSITION:forced=0
+DISPOSITION:hearing_impaired=0
+DISPOSITION:visual_impaired=0
+DISPOSITION:clean_effects=0
+DISPOSITION:attached_pic=0
+DISPOSITION:timed_thumbnails=0
+TAG:creation_time=2023-07-17T09:06:24.000000Z
+TAG:language=eng
+TAG:handler_name=TimeCodeHandler
+TAG:reel_name=B086C011
+TAG:timecode=20:51:01:20
+[/STREAM]
+

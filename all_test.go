@@ -6,24 +6,33 @@ import (
 )
 
 func TestParse(t *testing.T) {
-	cases := []struct{
+	cases := []struct {
 		file string
 		want result
 	}{
 		{
 			file: "testdata/ffprobe_1.out",
 			want: result{
-				start: "00:00:00:00",
-				end: "00:00:03:11",
-				duration: "102",
+				start:      "00:00:00:00",
+				end:        "00:00:04:05",
+				duration:   "102",
+				resolution: "1920*1080",
+			},
+		},
+		{
+			file: "testdata/ffprobe_2.out",
+			want: result{
+				start:      "20:51:01:20",
+				end:        "20:51:05:07",
+				duration:   "84",
 				resolution: "1920*1080",
 			},
 		},
 	}
-	cfg := config {
-		start: true,
-		end: true,
-		duration: true,
+	cfg := config{
+		start:      true,
+		end:        true,
+		duration:   true,
 		resolution: true,
 	}
 	for _, c := range cases {
